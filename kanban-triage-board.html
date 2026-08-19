@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kanban Triage Board</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --panel-alt: #1f2937;
+        --line: rgba(148, 163, 184, 0.2);
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --danger: #f87171;
+        --warning: #fbbf24;
+        --info: #60a5fa;
+        --success: #34d399;
+        --shadow: rgba(15, 23, 42, 0.45);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(180deg, #0b1120 0%, #111827 100%);
+        color: var(--text);
+      }
+
+      .shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px 20px 48px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.8rem, 2.5vw, 2.6rem);
+        letter-spacing: -0.04em;
+      }
+
+      .session-pill {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.7);
+        color: var(--muted);
+        padding: 8px 12px;
+        font-size: 0.78rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .section {
+        margin-top: 20px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        gap: 12px;
+      }
+
+      .section-title {
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin: 0;
+      }
+
+      .board {
+        display: grid;
+        gap: 16px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        background: rgba(17, 24, 39, 0.88);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px 18px 16px;
+        box-shadow: 0 10px 24px var(--shadow);
+      }
+
+      .card.highlight {
+        border-color: rgba(248, 113, 113, 0.45);
+        background: linear-gradient(180deg, rgba(127, 29, 29, 0.18), rgba(17, 24, 39, 0.9));
+      }
+
+      .topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 5px 9px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .tag.danger { background: rgba(248, 113, 113, 0.12); color: #fecaca; }
+      .tag.warning { background: rgba(251, 191, 36, 0.12); color: #fde68a; }
+      .tag.info { background: rgba(96, 165, 250, 0.12); color: #bfdbfe; }
+      .tag.neutral { background: rgba(148, 163, 184, 0.12); color: #cbd5e1; }
+      .tag.success { background: rgba(52, 211, 153, 0.12); color: #a7f3d0; }
+
+      .card h3 {
+        margin: 0;
+        font-size: 1.14rem;
+        line-height: 1.35;
+      }
+
+      .card p {
+        margin: 12px 0 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .card .justification {
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+        color: #dbeafe;
+      }
+
+      .context-button {
+        width: 100%;
+        margin-top: 16px;
+        border: 1px solid rgba(96, 165, 250, 0.4);
+        border-radius: 12px;
+        background: rgba(59, 130, 246, 0.12);
+        color: #dbeafe;
+        padding: 10px 12px;
+        font-size: 0.96rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.15s ease, background 0.15s ease;
+      }
+
+      .context-button:hover {
+        background: rgba(59, 130, 246, 0.2);
+        transform: translateY(-1px);
+      }
+
+      .context-button.added {
+        background: rgba(52, 211, 153, 0.18);
+        border-color: rgba(52, 211, 153, 0.5);
+        color: #d1fae5;
+      }
+
+      .lower-priority {
+        margin-top: 16px;
+      }
+
+      @media (max-width: 700px) {
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="topbar">
+        <h1>Work triage board</h1>
+        <div class="session-pill">Current session: Kanban triage board</div>
+      </div>
+
+      <section class="section" aria-labelledby="urgent-title">
+        <div class="section-header">
+          <h2 id="urgent-title" class="section-title">Immediate attention</h2>
+        </div>
+        <div class="board">
+          <div class="cards">
+            <article class="card highlight" aria-label="Issue 1">
+              <div class="topline">
+                <span class="tag danger">P1</span>
+                <span class="tag warning">Auth</span>
+              </div>
+              <h3>Fix token refresh loop for expired sessions</h3>
+              <p>Users are getting stuck in a repeated sign-in loop after 30 minutes of inactivity. The refresh endpoint is returning stale claims and the app fails silently in the background.</p>
+              <p class="justification">This is at the top because it blocks continued access for a large share of active users and is already causing repeated support escalations.</p>
+              <button class="context-button" type="button">Add to current context</button>
+            </article>
+
+            <article class="card highlight" aria-label="Issue 2">
+              <div class="topline">
+                <span class="tag danger">P1</span>
+                <span class="tag info">Shipping</span>
+              </div>
+              <h3>Repair the release pipeline before the next deployment cut</h3>
+              <p>Post-merge quality checks are failing during artifact packaging, and the deploy workflow is halting before the final smoke test begins.</p>
+              <p class="justification">This deserves immediate attention because it is blocking the next release and creates high operational risk if teams continue to ship around it.</p>
+              <button class="context-button" type="button">Add to current context</button>
+            </article>
+
+            <article class="card highlight" aria-label="Issue 3">
+              <div class="topline">
+                <span class="tag danger">P1</span>
+                <span class="tag success">Customer impact</span>
+              </div>
+              <h3>Resolve stale pricing data on checkout</h3>
+              <p>Orders are occasionally using cached pricing values from the previous promotional window, which creates incorrect totals and customer confusion at payment time.</p>
+              <p class="justification">This is a customer-facing bug with direct revenue risk and a strong chance of repeated escalation if not resolved before the next pricing refresh.</p>
+              <button class="context-button" type="button">Add to current context</button>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section lower-priority" aria-labelledby="backlog-title">
+        <div class="section-header">
+          <h2 id="backlog-title" class="section-title">Secondary queue</h2>
+        </div>
+        <div class="cards">
+          <article class="card" aria-label="Issue 4">
+            <div class="topline">
+              <span class="tag warning">P2</span>
+              <span class="tag neutral">Docs</span>
+            </div>
+            <h3>Fill in onboarding gaps for the new API preview</h3>
+            <p>The integration guide still skips configuration for service principals and expected response headers; first-time adopters are hitting dead ends.</p>
+            <button class="context-button" type="button">Add to current context</button>
+          </article>
+
+          <article class="card" aria-label="Issue 5">
+            <div class="topline">
+              <span class="tag warning">P2</span>
+              <span class="tag info">Monitoring</span>
+            </div>
+            <h3>Add error grouping for failed search queries</h3>
+            <p>Search failures are currently logged as generic exceptions, which makes incident triage slower and hides repeatable root causes.</p>
+            <button class="context-button" type="button">Add to current context</button>
+          </article>
+
+          <article class="card" aria-label="Issue 6">
+            <div class="topline">
+              <span class="tag neutral">P3</span>
+              <span class="tag success">UX</span>
+            </div>
+            <h3>Improve empty state messaging for archived projects</h3>
+            <p>Archived workspaces show a generic blank state that does not explain whether content is hidden, deleted, or intentionally isolated.</p>
+            <button class="context-button" type="button">Add to current context</button>
+          </article>
+
+          <article class="card" aria-label="Issue 7">
+            <div class="topline">
+              <span class="tag neutral">P3</span>
+              <span class="tag warning">Performance</span>
+            </div>
+            <h3>Reduce dashboard load time for large team snapshots</h3>
+            <p>Heavy report panels are slowing page load for organizations with many projects and stale history caches.</p>
+            <button class="context-button" type="button">Add to current context</button>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      document.querySelectorAll('.context-button').forEach((button) => {
+        button.addEventListener('click', () => {
+          const wasAdded = button.classList.contains('added');
+          button.classList.toggle('added', !wasAdded);
+          button.textContent = wasAdded ? 'Add to current context' : 'Added to current context';
+        });
+      });
+    </script>
+  </body>
+</html>
