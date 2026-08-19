@@ -45,6 +45,7 @@ ALL UI components MUST use dark theme colors:
 - Prefer utility classes over custom CSS when possible
 - Use semantic grouping: layout, spacing, colors, typography
 - Keep utility combinations readable and maintainable
+- Preserve visible focus styles on interactive elements; do not remove outlines unless you replace them with an equally visible focus treatment
 
 ## Modern UI Patterns
 
@@ -52,3 +53,9 @@ ALL UI components MUST use dark theme colors:
 - Smooth transitions: `transition-all duration-200 ease-in-out`
 - Shadows for depth: `shadow-md`, `shadow-lg`, `shadow-xl`
 - Focus states for accessibility: `focus:ring-2 focus:ring-blue-500`
+
+## Accessibility Alignment
+
+- Styling must reinforce semantic HTML, not compensate for missing semantics.
+- Do not style generic elements to behave like buttons or links when native elements are available.
+- Ensure hover-only affordances also have keyboard-focus equivalents.

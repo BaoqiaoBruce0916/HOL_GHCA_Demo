@@ -18,9 +18,10 @@ This is a crowdfunding platform for games with a developer theme. The applicatio
 
 #### Testing guidelines
 
-- **Always run tests and lint through the `quality-checks` skill — never invoke `npm run test:unit`, `npm run test:e2e`, or `npm run lint` directly.** The skill wraps environment setup, ordering, and troubleshooting. (Starting the app for manual validation is not a quality check — run `npm run dev` directly for that.)
+- **Always run tests and lint through the `quality-checks` skill — never invoke `npm run test:unit`, `npm run test:e2e`, or `npm run lint` directly.** The skill wraps environment setup, ordering, and troubleshooting. This applies before commits, before opening or updating a PR, and whenever you need to verify a change set. (Starting the app for manual validation is not a quality check — run `npm run dev` directly for that.)
 - Run Vitest unit tests to verify the data layer and transforms, and Playwright tests to verify e2e and frontend functionality
 - Run ESLint to check frontend code quality before committing
+- Run both type-check entry points when TypeScript or Astro files change: `npm run typecheck` for pure TypeScript and `npm run typecheck:astro` for `.astro` files
 - Review the existing tests to ensure we're not duplicating efforts
 - Test code should be of the same quality as the rest of the project, and follow DRY principles
 - For frontend changes, verify the build (`npm run build`) directly, and run the end-to-end tests through the `quality-checks` skill, to ensure everything works correctly
@@ -51,6 +52,7 @@ This is a crowdfunding platform for games with a developer theme. The applicatio
 - Dynamic routes use `getStaticPaths()` + `export const prerender = true`
 - Provide a branded `404.astro` (unknown routes are real 404s under static output)
 - Only add a scoped Astro `<script>` when genuine client interactivity is required
+- Run `npx astro sync` whenever route/content types need to be regenerated; `npm run typecheck:astro` already does this before `astro check`
 
 ### Styling
 
@@ -58,6 +60,7 @@ This is a crowdfunding platform for games with a developer theme. The applicatio
 - Dark theme colors: slate palette (`bg-slate-800`, `text-slate-100`, etc.)
 - Rounded corners and modern UI patterns
 - Follow modern UI/UX principles with clean, accessible interfaces
+- Prefer semantic elements first; only add ARIA roles when native HTML semantics are insufficient
 
 ### GitHub Actions workflows
 
@@ -83,6 +86,12 @@ This is a crowdfunding platform for games with a developer theme. The applicatio
 
 > [!NOTE]
 > TypeScript 7 (`tsgo`) is adopted **side-by-side** for type checking only; it does not affect linting. ESLint + `typescript-eslint` and `astro check` still resolve the classic `typescript` package (kept at v6) because the native compiler's API isn't ready for them yet. Do **not** bump the classic `typescript` package to 7 (a Dependabot `ignore` holds it) until `typescript-eslint` + `@astrojs/check` support the native API. `tsgo` is `--noEmit` only; the site is still built by `astro build`.
+
+## Instruction Files
+
+- Read `.github/instructions/*.md` files that apply to the files you are changing before you edit them.
+- Keep `.github/copilot-instructions.md` and the instruction files aligned whenever project structure, scripts, testing workflow, or coding standards change.
+- Treat `ui.instructions.md` as the shared source for accessibility and interactive-element guidance that complements the Astro and style instructions.
 
 ## Repository Structure
 

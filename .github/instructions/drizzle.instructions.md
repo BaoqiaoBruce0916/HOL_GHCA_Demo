@@ -67,3 +67,7 @@ Unit-test transforms directly and helpers against `createTestDatabase()`. See [`
 
 The data layer (`db/**/*.ts`, `src/lib/*.ts`) is type-checked by `npm run typecheck`, which runs the native **TypeScript 7** compiler (`tsgo`, from `@typescript/native-preview`) against `tsconfig.tsgo.json`. Keep helpers exported with explicit parameter and return types so `tsgo` can verify them. Linting is unaffected — ESLint + `typescript-eslint` still run on the classic `typescript` package.
 
+## Safety Checks
+
+- When changing the schema, keep `db/schema.ts`, the generated migration, and affected tests in sync in the same change set.
+- Keep transform functions pure and deterministic so build-time seeding remains reproducible and unit-testable.

@@ -106,6 +106,10 @@ const game = await getGameById(getDatabase(), Number(id));
 
 There is no Svelte/React layer. When a page genuinely needs client behaviour, add a scoped Astro `<script>` using standard DOM APIs. Prefer native interactive elements (`<button>`, `<a href>`) so keyboard and focus behaviour come for free.
 
+- Reach for `<button>` for in-page actions and `<a>` for navigation instead of recreating those semantics on generic elements.
+- If you add a dismissible UI pattern (menu, dialog, popover), wire keyboard support explicitly, including Escape to dismiss and predictable focus movement.
+- Every interactive element must include a stable `data-testid` (see [`ui.instructions.md`](ui.instructions.md)).
+
 ## TypeScript
 
 - Use TypeScript for type-safe props
@@ -119,4 +123,5 @@ There is no Svelte/React layer. When a page genuinely needs client behaviour, ad
 - Keep data fetching in frontmatter (build time); avoid client-side fetching
 - Minimize client-side JavaScript — the default is zero JS shipped
 - Import and use global CSS styles from layouts
-- Always include a `data-testid` on interactive elements (see `ui.instructions.md`)
+- Always include a `data-testid` on interactive elements (see [`ui.instructions.md`](ui.instructions.md))
+- Prefer semantic HTML landmarks and controls before adding ARIA roles or attributes
